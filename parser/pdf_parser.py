@@ -1,4 +1,4 @@
-from abstract_parser import Parser
+from .abstract_parser import Parser
 import pymupdf
 
 class PDFParser(Parser):
@@ -6,10 +6,13 @@ class PDFParser(Parser):
     def __init__(self, doc_bytes):
         self.doc_byte = doc_bytes
         self.extracted_doc = None
+        self.doc = None
     
     def __enter__(self):
         self.doc = pymupdf.open(stream=self.doc_byte, filetype="pdf")
         self.extracted_doc = self._extract_text_once()
+
+        return self
 
     
     def _extract_text_once(self) -> list[str]:
@@ -28,7 +31,7 @@ class PDFParser(Parser):
         except Exception:
             pass
     def extract_text(self):
-        text = "\n".join(self.extracted_doc())
+        text = "\n".join(self.extracted_doc)
 
         return text
     
