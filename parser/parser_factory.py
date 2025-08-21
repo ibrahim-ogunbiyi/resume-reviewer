@@ -3,7 +3,7 @@ from .docx_parser import DocxParser
 from contextlib import contextmanager
 
 @contextmanager
-def get_parser(self, ext:str, doc_bytes:bytes):
+def get_parser(doc_bytes:bytes, ext:str):
 
     if ext in ["pdf", ".pdf"]:
 
