@@ -1,5 +1,5 @@
-from abstract_parser import Parser
-from io import StringIO
+from .abstract_parser import Parser
+from io import BytesIO
 from docx import Document
 
 class DocxParser(Parser):
@@ -11,10 +11,12 @@ class DocxParser(Parser):
 
 
     def __enter__(self):
-        source_stream = StringIO(self.doc_byte)
+        source_stream = BytesIO(self.doc_byte)
 
         self.document = Document(source_stream)
         self.extracted_text = self.extract_text_once()
+
+        return self
 
     def extract_text_once(self):
         
