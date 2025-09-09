@@ -27,4 +27,4 @@ Now Revamp this User input
 ### Job Description
 {job_description}
 
-"""
+"""  # noqa: E501
