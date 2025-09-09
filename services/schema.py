@@ -1,9 +1,12 @@
 from pydantic import BaseModel, Field
 
+
 class JobDescriptionCheck(BaseModel):
     pillar: str = Field(description="The pillar being evaluated")
-    problem: str = Field(description="The identified issue(s) in the resume relative to the job description. Be specific.")
-    recommendation: str = Field(description="Actionable steps to revamp or improve this section so it better matches the job description.")
+    problem: str = Field(
+            description="The identified issue(s) in the resume relative to the job description. Be specific.")  # noqa: E501
+    recommendation: str = Field(
+        description="Actionable steps to revamp or improve this section so it better matches the job description.")  # noqa: E501
 
 
 class JobDescriptionCheckSchema(BaseModel):

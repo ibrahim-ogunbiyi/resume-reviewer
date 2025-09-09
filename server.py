@@ -1,8 +1,10 @@
-import streamlit as st
 from pathlib import Path
-from services.schema import FileSchema
-from services.fit_to_job_description import fit_to_job_description
+
+import streamlit as st
+
 from lib.model import ModelClass
+from services.fit_to_job_description import fit_to_job_description
+from services.schema import FileSchema
 
 ModelClass().load_models()
 

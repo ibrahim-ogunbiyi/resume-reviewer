@@ -1,8 +1,8 @@
-from langchain_groq import ChatGroq
-from core.config import settings
 from keybert import KeyBERT
+from langchain_groq import ChatGroq
 from sentence_transformers import SentenceTransformer
 
+from core.config import settings
 
 
 class ModelClass:
@@ -12,7 +12,7 @@ class ModelClass:
     llm = None
 
     @classmethod
-    def get_keybert_model(cls):
+    def get_keybert_model(cls) -> None:
 
         if cls.keybert_model is None:
 
@@ -22,7 +22,7 @@ class ModelClass:
             _ = cls.keybert_model.extract_keywords("Dummy testing to warmup model")
     
     @classmethod
-    def get_encoding_model(cls):
+    def get_encoding_model(cls) -> None:
 
         if cls.encoding_model is None:
 
@@ -32,7 +32,7 @@ class ModelClass:
             _ = cls.encoding_model.encode("Dummy testing to warm up model")
 
     @classmethod
-    def get_llm(cls):
+    def get_llm(cls) -> None:
 
         if cls.llm is None:
             llm_model = ChatGroq(
@@ -46,7 +46,7 @@ class ModelClass:
             cls.llm = llm_model
         
     @classmethod
-    def load_models(cls):
+    def load_models(cls) -> None:
         cls.get_encoding_model()
         cls.get_llm()
         cls.get_keybert_model()

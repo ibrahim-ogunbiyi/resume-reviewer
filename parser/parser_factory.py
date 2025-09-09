@@ -1,9 +1,12 @@
-from .pdf_parser import PDFParser
-from .docx_parser import DocxParser
 from contextlib import contextmanager
+from typing import ContextManager, Generator
+
+from .docx_parser import DocxParser
+from .pdf_parser import PDFParser
+
 
 @contextmanager
-def get_parser(doc_bytes:bytes, ext:str):
+def get_parser(doc_bytes:bytes, ext:str) -> Generator[ContextManager]:
 
     if ext in [".pdf"]:
 
