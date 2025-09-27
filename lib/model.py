@@ -47,10 +47,7 @@ class ModelClass:
         
     @classmethod
     def load_models(cls) -> None:
-        cls.get_encoding_model()
-        cls.get_llm()
-        cls.get_keybert_model()
-        
+        cls.get_llm()        
     
 
 
