@@ -6,7 +6,7 @@ from .pdf_parser import PDFParser
 
 
 @contextmanager
-def get_parser(doc_bytes:bytes, ext:str) -> Generator[ContextManager]:
+def get_parser(doc_bytes:bytes, ext:str) -> Generator[ContextManager, None, None]:
 
     if ext in [".pdf"]:
 
