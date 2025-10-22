@@ -12,7 +12,7 @@ from services.schema import ATSSchema, FileSchema, JobDescriptionCheckSchema, Re
 
 ModelClass().load_models()
 
-logger = logging.getLogger("ats_checker")
+logger = logging.getLogger("main_app")
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO

@@ -103,10 +103,13 @@ async def ats_checker(job_description: str, resume_text: str) -> ATSSchema:
             if highest_similary >= 0.6:
                 matched_phrases.append(resume_phrases[i])
 
+        unmatched_phrases = [phrase for phrase in jd_phrases if phrase not in matched_phrases]
+        
         phrases = {
             "job_description_phrases": jd_phrases,
             "resume_phrases": resume_phrases,
             "matched_phrases": matched_phrases,
+            "unmatched_phrases": unmatched_phrases
         }
 
         scores = {
