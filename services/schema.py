@@ -29,13 +29,23 @@ class ATSScore(BaseModel):
     mean: float
     std: float
 
+class ATSKeywordRecommendation(BaseModel):
+    pillar: str = Field(description="The pillar being evaluated")
+    recommendation: str = Field(
+        description="Actionable steps on revamping or improving this section naturally so it better achieve an higher resume relevance")  # noqa: E501
+
+
+class ATSKeywordRecommendationSchema(BaseModel):
+    checks: list[ATSKeywordRecommendation]
 
 class ATSSchema(BaseModel):
     score: ATSScore
     phrases: ATSPhrasesSchema
-
+    ats_recommendation: ATSKeywordRecommendationSchema
 
 
 class ResumeReviewSchema(BaseModel):
     resume_evaluation_result: JobDescriptionCheckSchema
     ats_checker_result: ATSSchema
+
+
