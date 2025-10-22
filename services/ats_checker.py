@@ -1,13 +1,19 @@
 import asyncio
+import json
 import logging
+import re
 
 import aiohttp
 import numpy as np
 import torch
+from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.prompts import PromptTemplate
 from sentence_transformers.util import cos_sim
 
 from core.config import settings
-from services.schema import ATSSchema
+from lib.model import ModelClass
+from prompts.prompt import RESUME_ATS_REVAMP_PROMPT
+from services.schema import ATSKeywordRecommendationSchema, ATSSchema
 
 logger = logging.getLogger("ats_checker")
 logging.basicConfig(
@@ -23,7 +29,7 @@ async def extract_phrases(text: list[str] | str, session: aiohttp.ClientSession)
         ) as url_response:
             response = await url_response.json()
 
-        logger.info("Finished Extracting Text from Text")
+        logger.info("Finished Extracting Phrases from Text")
 
         return response
     except aiohttp.ClientTimeout:
@@ -77,6 +83,33 @@ async def encode_resume_and_jd_phrases(
         logger.warning(f"Unable to Encode Resume and JD Phrases: {e}")
 
 
+async def provide_recommendation_for_keywords(
+    unmatched_keywords: list[str], resume_text: str
+) -> ATSKeywordRecommendationSchema:
+    output_format = JsonOutputParser(pydantic_object=ATSKeywordRecommendationSchema)
+
+    prompt = PromptTemplate(
+        template=RESUME_ATS_REVAMP_PROMPT,
+        input_variables=["user_resume_or_cv", "keywords"],
+        partial_variables={"output_format": output_format.get_format_instructions()},
+    )
+
+    chain = prompt | ModelClass().llm
+
+    result = await chain.ainvoke(
+        {"user_resume_or_cv": resume_text, "job_description": unmatched_keywords}
+    )
+
+    result = re.sub(r"^```json|```", "", result.content.strip(), flags=re.MULTILINE)
+
+    result = json.loads(result)
+
+    # validate result
+    result = ATSKeywordRecommendationSchema(checks=result["checks"])
+
+    return result.model_dump()
+
+
 async def ats_checker(job_description: str, resume_text: str) -> ATSSchema:
     try:
         logger.info("Beginning ATS Check")
@@ -104,12 +137,12 @@ async def ats_checker(job_description: str, resume_text: str) -> ATSSchema:
                 matched_phrases.append(resume_phrases[i])
 
         unmatched_phrases = [phrase for phrase in jd_phrases if phrase not in matched_phrases]
-        
+
         phrases = {
             "job_description_phrases": jd_phrases,
             "resume_phrases": resume_phrases,
             "matched_phrases": matched_phrases,
-            "unmatched_phrases": unmatched_phrases
+            "unmatched_phrases": unmatched_phrases,
         }
 
         scores = {
@@ -117,7 +150,13 @@ async def ats_checker(job_description: str, resume_text: str) -> ATSSchema:
             "std": (np.std(all_similarities) * 100),
         }
 
-        result = ATSSchema(score=scores, phrases=phrases)
+        ats_recommendation_result = await provide_recommendation_for_keywords(
+            unmatched_keywords=unmatched_phrases, resume_text=resume_text
+        )
+
+        result = ATSSchema(
+            score=scores, phrases=phrases, ats_recommendation=ats_recommendation_result
+        )
 
         logger.info("Finished ATS Check")
         return result.model_dump()
