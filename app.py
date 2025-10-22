@@ -3,7 +3,7 @@ import logging
 from parser.parser_factory import get_parser
 from pathlib import Path
 
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, UploadFile, File
 
 from lib.model import ModelClass
 from services.ats_checker import ats_checker
@@ -23,7 +23,7 @@ app = FastAPI()
 
 @app.post("/api/analyse-resume")
 async def analyze_resume_against_description(
-    file: UploadFile, job_description: str
+    job_description: str, file: UploadFile=File(...)
 ) -> tuple[JobDescriptionCheckSchema, ATSSchema]:
     
     # read content
