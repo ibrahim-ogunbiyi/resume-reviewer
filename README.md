@@ -1,16 +1,9 @@
 ---
-title: string
-"Resume Reviewer API"
-emoji: string
-"🚀"
-colorFrom: string
-"indigo"
-colorTo: string
-"green"
-sdk: string
-"docker"
-python_version: string
-"3.11"
-app_file: string
-"app.py"
+title: "Resume Reviewer API"
+emoji: "🚀"
+colorFrom: "indigo"
+colorTo: "green"
+sdk: "docker"
+python_version: "3.11"
+app_file: "app.py"
 ---
