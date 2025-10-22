@@ -97,7 +97,7 @@ async def provide_recommendation_for_keywords(
     chain = prompt | ModelClass().llm
 
     result = await chain.ainvoke(
-        {"user_resume_or_cv": resume_text, "job_description": unmatched_keywords}
+        {"user_resume_or_cv": resume_text, "keywords": unmatched_keywords}
     )
 
     result = re.sub(r"^```json|```", "", result.content.strip(), flags=re.MULTILINE)
