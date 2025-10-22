@@ -58,3 +58,5 @@ async def wake_up_app() -> None:
     ModelClass().load_models()
 
     logger.info("Application Ready to Serve Traffic")
+
+    return None
