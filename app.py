@@ -1,11 +1,11 @@
 import asyncio
 import logging
-from parser.parser_factory import get_parser
 from pathlib import Path
 
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, File, Form, UploadFile
 
 from lib.model import ModelClass
+from parser.parser_factory import get_parser
 from services.ats_checker import ats_checker
 from services.resume_evaluation import compare_resume_to_job_description
 from services.schema import ATSSchema, FileSchema, JobDescriptionCheckSchema, ResumeReviewSchema

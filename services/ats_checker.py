@@ -15,11 +15,12 @@ logging.basicConfig(
 )
 
 
-async def extract_phrases(text: list[str] | str, session:aiohttp.ClientSession) -> list:
-
+async def extract_phrases(text: list[str] | str, session: aiohttp.ClientSession) -> list:
     try:
         logger.info("Beginning Extracting Phrases from Text")
-        async with session.post(settings.KEYWORD_EXTRACTION_SERVICE_URL, json={"text": text}) as url_response:
+        async with session.post(
+            settings.KEYWORD_EXTRACTION_SERVICE_URL, json={"text": text}
+        ) as url_response:
             response = await url_response.json()
 
         logger.info("Finished Extracting Text from Text")
@@ -35,7 +36,7 @@ async def extract_phrases(text: list[str] | str, session:aiohttp.ClientSession) 
         logger.exception("Unexpected error during phrase extraction")
 
 
-async def encode_text(text: list[str] | str, session:aiohttp.ClientSession) -> list:
+async def encode_text(text: list[str] | str, session: aiohttp.ClientSession) -> list:
     try:
         logger.info("Beginning Encoding Text")
         async with session.post(settings.ENCODING_SERVICE_URL, json={"text": text}) as url_response:

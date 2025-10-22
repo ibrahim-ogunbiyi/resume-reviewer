@@ -1,8 +1,8 @@
+from pathlib import Path
+
 import streamlit as st
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pathlib import Path
-
 
 BASE_DIR = Path(__file__).resolve().parent
 class Settings(BaseSettings):

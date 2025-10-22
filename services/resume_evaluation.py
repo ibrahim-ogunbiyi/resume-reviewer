@@ -1,6 +1,6 @@
 import json
-import re
 import logging
+import re
 
 import numpy as np
 from langchain_core.output_parsers import JsonOutputParser
@@ -19,9 +19,8 @@ logging.basicConfig(
 
 
 async def compare_resume_to_job_description(
-    resume_text:str, job_description: str
+    resume_text: str, job_description: str
 ) -> JobDescriptionCheckSchema:
-    
     try:
         logger.info("Beginning Resume Evaluation with Job Description")
         parser = JsonOutputParser(pydantic_object=JobDescriptionCheckSchema)
