@@ -16,3 +16,20 @@ class JobDescriptionCheckSchema(BaseModel):
 class FileSchema(BaseModel):
     doc_bytes: bytes
     ext: str
+
+
+class ATSPhrasesSchema(BaseModel):
+
+    job_description_phrases: list[str]
+    resume_phrases: list[str]
+    matched_phrases: list[str]
+
+
+class ATSScore(BaseModel):
+    mean: float
+    std: float
+
+
+class ATSSchema(BaseModel):
+    score: ATSScore
+    phrases: ATSPhrasesSchema

@@ -1,54 +1,60 @@
+import asyncio
+import logging
+from parser.parser_factory import get_parser
 from pathlib import Path
 
-import streamlit as st
+from fastapi import FastAPI, UploadFile
 
 from lib.model import ModelClass
-from services.fit_to_job_description import fit_to_job_description
-from services.schema import FileSchema
+from services.ats_checker import ats_checker
+from services.resume_evaluation import compare_resume_to_job_description
+from services.schema import ATSSchema, FileSchema, JobDescriptionCheckSchema
 
 ModelClass().load_models()
 
-st.title("Resume Review: Tailor Resume to Job Description")
+logger = logging.getLogger("ats_checker")
 
-uploaded_file = st.file_uploader(label="Upload File", type=["pdf", "docx", "doc"])
-job_description = st.text_area(label="Enter or Paste Job Description")
+logging.basicConfig(
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+)
+
+app = FastAPI()
 
 
-if st.button("Process"):
-    with st.spinner("Processing... ⏳"):
-        if uploaded_file and job_description:
-            doc_bytes = uploaded_file.getvalue()
-            file_extension = Path(uploaded_file.name).suffix
-            file = FileSchema(doc_bytes=doc_bytes, ext=file_extension)
-            result, ats_checker_result = fit_to_job_description(file=file, job_description=job_description)
-        
-        # --- ATS SCORECARD ---
-        if ats_checker_result:
-            st.subheader("📊 ATS Evaluation")
+@app.post("/api/analyse-resume")
+async def analyze_resume_against_description(
+    file: UploadFile, job_description: str
+) -> tuple[JobDescriptionCheckSchema, ATSSchema]:
+    
+    # read content
+    content = await file.read()
+    ext = Path(file.filename).suffix
 
-            # Show mean ± std deviation
-            st.metric(
-                label="Resume ATS Score",
-                value=f"{ats_checker_result[0]['mean']:.1f}%",
-                delta=f"±{ats_checker_result[0]['std']:.1f}"
-            )
+    # extract text
+    with get_parser(doc_bytes=content, ext=ext) as parser:
+        extracted_text = parser.extract_text()
 
-            # Optional: add interpretation
-            mean_score = ats_checker_result[0]["mean"]
-            if mean_score >= 80:
-                st.success("✅ Strong alignment with the job description.")
-            elif mean_score >= 50:
-                st.warning("⚠️ Moderate alignment — improvements recommended.")
-            else:
-                st.error("❌ Low alignment — resume needs significant revision.")
+    # schedule ats checker and resume evaluation task
+    resume_evaluation_task = asyncio.create_task(
+        compare_resume_to_job_description(
+            resume_text=extracted_text, job_description=job_description
+        )
+    )
 
-        # --- LLM REVIEW ---
-        if result:
-            st.subheader("🧠 AI-Powered Resume Review")
+    ats_checker_task = asyncio.create_task(
+        ats_checker(job_description=job_description, resume_text=extracted_text)
+    )
 
-            for check in result["checks"]:
-                with st.expander(f"🔹 {check['pillar']}"):
-                    st.markdown(f"**🚨 Problem:** {check['problem']}")
-                    st.markdown(f"**✅ Recommendation:** {check['recommendation']}")
+    # execute task
+    resume_evaluation_result: JobDescriptionCheckSchema = await resume_evaluation_task
 
-        
+    ats_checker_result: ATSSchema = await ats_checker_task
+
+    return resume_evaluation_result, ats_checker_result
+
+
+@app.get("/health")
+async def wake_up_app() -> None:
+    ModelClass().load_models()
+
+    logger.info("Application Ready to Serve Traffic")
