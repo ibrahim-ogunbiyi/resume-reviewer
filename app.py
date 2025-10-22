@@ -8,7 +8,7 @@ from fastapi import FastAPI, UploadFile, File, Form
 from lib.model import ModelClass
 from services.ats_checker import ats_checker
 from services.resume_evaluation import compare_resume_to_job_description
-from services.schema import ATSSchema, FileSchema, JobDescriptionCheckSchema
+from services.schema import ATSSchema, FileSchema, JobDescriptionCheckSchema, ResumeReviewSchema
 
 ModelClass().load_models()
 
@@ -23,9 +23,9 @@ app = FastAPI()
 
 @app.post("/api/analyse-resume")
 async def analyze_resume_against_description(
-    job_description: str=Form(...), file: UploadFile=File(...)
-) -> tuple[JobDescriptionCheckSchema, ATSSchema]:
-    
+    job_description: str = Form(...), file: UploadFile = File(...)
+) -> ResumeReviewSchema:
+    logger.info("Beginning Extracting text from PDF")
     # read content
     content = await file.read()
     ext = Path(file.filename).suffix
@@ -33,6 +33,7 @@ async def analyze_resume_against_description(
     # extract text
     with get_parser(doc_bytes=content, ext=ext) as parser:
         extracted_text = parser.extract_text()
+    logger.info(f"Finished Extracting text from PDF: {extracted_text[:100]}")
 
     # schedule ats checker and resume evaluation task
     resume_evaluation_task = asyncio.create_task(
@@ -50,7 +51,10 @@ async def analyze_resume_against_description(
 
     ats_checker_result: ATSSchema = await ats_checker_task
 
-    return resume_evaluation_result, ats_checker_result
+    result = ResumeReviewSchema(
+        ats_checker_result=ats_checker_result, resume_evaluation_result=resume_evaluation_result
+    )
+    return result.model_dump()
 
 
 @app.get("/health")

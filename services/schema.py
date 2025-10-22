@@ -33,3 +33,9 @@ class ATSScore(BaseModel):
 class ATSSchema(BaseModel):
     score: ATSScore
     phrases: ATSPhrasesSchema
+
+
+
+class ResumeReviewSchema(BaseModel):
+    resume_evaluation_result: JobDescriptionCheckSchema
+    ats_checker_result: ATSSchema

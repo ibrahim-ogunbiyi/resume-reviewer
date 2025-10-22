@@ -1,3 +1,4 @@
+import requests
 from langchain_groq import ChatGroq
 
 from core.config import settings
@@ -5,6 +6,16 @@ from core.config import settings
 
 class ModelClass:
     llm = None
+
+    @classmethod
+    def warm_phrase_extraction_endpoint(cls) -> None:
+
+        _ = requests.post(settings.KEYWORD_EXTRACTION_SERVICE_URL, json={"text": "Dummy testing to warm up endpoint"})
+    
+    @classmethod
+    def warm_phrase_encoding_endpoint(cls) -> None:
+         _ = requests.post(settings.ENCODING_SERVICE_URL, json={"text": "Dummy testing to warm up endpoint"})
+    
 
     @classmethod
     def get_llm(cls) -> None:
@@ -22,7 +33,9 @@ class ModelClass:
         
     @classmethod
     def load_models(cls) -> None:
-        cls.get_llm()        
+        cls.get_llm()   
+        cls.warm_phrase_encoding_endpoint()
+        cls.warm_phrase_extraction_endpoint()     
     
 
 
