@@ -5,6 +5,6 @@ colorFrom: {{indigo}}
 colorTo: {{green}}
 sdk: {{docker}}
 python_version: {{3.11}}
-app_file: {{server.py}}
+app_file: {{app.py}}
 pinned: false
 ---
