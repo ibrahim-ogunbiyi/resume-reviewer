@@ -57,7 +57,7 @@ async def analyze_resume_against_description(
     return result.model_dump()
 
 
-@app.get("/health")
+@app.get("/")
 async def wake_up_app() -> None:
     ModelClass().load_models()
 
