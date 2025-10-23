@@ -86,29 +86,35 @@ async def encode_resume_and_jd_phrases(
 async def provide_recommendation_for_keywords(
     unmatched_keywords: list[str], resume_text: str
 ) -> ATSKeywordRecommendationSchema:
-    output_format = JsonOutputParser(pydantic_object=ATSKeywordRecommendationSchema)
+    
+    try: 
+        logger.info("Beginning keyword recommendation generation")
+        output_format = JsonOutputParser(pydantic_object=ATSKeywordRecommendationSchema)
 
-    prompt = PromptTemplate(
-        template=RESUME_ATS_REVAMP_PROMPT,
-        input_variables=["user_resume_or_cv", "keywords"],
-        partial_variables={"output_format": output_format.get_format_instructions()},
-    )
+        prompt = PromptTemplate(
+            template=RESUME_ATS_REVAMP_PROMPT,
+            input_variables=["user_resume_or_cv", "keywords"],
+            partial_variables={"output_format": output_format.get_format_instructions()},
+        )
 
-    chain = prompt | ModelClass().llm
+        chain = prompt | ModelClass().llm
 
-    result = await chain.ainvoke(
-        {"user_resume_or_cv": resume_text, "keywords": unmatched_keywords}
-    )
+        result = await chain.ainvoke(
+            {"user_resume_or_cv": resume_text, "keywords": unmatched_keywords}
+        )
 
-    result = re.sub(r"^```json|```", "", result.content.strip(), flags=re.MULTILINE)
+        result = re.sub(r"^```json|```", "", result.content.strip(), flags=re.MULTILINE)
 
-    result = json.loads(result)
+        result = json.loads(result)
 
-    # validate result
-    result = ATSKeywordRecommendationSchema(checks=result["checks"])
+        # validate result
+        result = ATSKeywordRecommendationSchema(checks=result["checks"])
 
-    return result.model_dump()
+        logger.info("Finished providing keyword recommendations")
 
+        return result.model_dump()
+    except Exception as e:
+        logger.warning(f"Unable to provide recommendation for keywords revamping: {e}")
 
 async def ats_checker(job_description: str, resume_text: str) -> ATSSchema:
     try:
@@ -138,6 +144,7 @@ async def ats_checker(job_description: str, resume_text: str) -> ATSSchema:
 
         unmatched_phrases = [phrase for phrase in jd_phrases if phrase not in matched_phrases]
 
+        print(len(unmatched_phrases))
         phrases = {
             "job_description_phrases": jd_phrases,
             "resume_phrases": resume_phrases,
