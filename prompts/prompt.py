@@ -42,12 +42,12 @@ Do **not** simply JUST append keywords — embed them contextually and meaningfu
 ### Goal
 1. Seamlessly incorporate all provided keywords into the resume in a way that enhances clarity, impact, and relevance.  
 2. Strengthen alignment between the candidate’s experience and the target job description.  
-3. Suggest **specific locations and phrasing** for integrating each keyword across the five key resume pillars.  
+3. Suggest **specific locations and phrasing** for integrating each keyword across the key resume pillars.  
 4. Maintain natural flow, consistent tense, and professional language throughout.
 
 ---
 
-### EVALUATION FRAMEWORK — 5 PILLARS
+### EVALUATION FRAMEWORK — 
 Review and enhance the resume using these five pillars:
 - Executive Background (overall summary, positioning, and leadership fit)  
 - Qualifications & Skills (technical and soft skills relevant to the job description)  

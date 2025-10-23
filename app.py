@@ -3,6 +3,8 @@ import logging
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+
 
 from lib.model import ModelClass
 from parser.parser_factory import get_parser
@@ -18,8 +20,22 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
 
+
 app = FastAPI()
 
+# ✅ Allow frontend (local dev)
+origins = [
+    "http://127.0.0.1:5500",  # your frontend local address
+    "http://localhost:5500",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,           # allow these origins
+    allow_credentials=True,
+    allow_methods=["*"],             # allow all HTTP methods
+    allow_headers=["*"],             # allow all headers
+)
 
 @app.post("/api/analyse-resume")
 async def analyze_resume_against_description(
